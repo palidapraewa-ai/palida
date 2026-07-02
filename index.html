@@ -357,6 +357,34 @@
         font-size: 11px;
       }
 
+      .pollutant-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .pollutant-tile {
+        min-height: 76px;
+        border: 1px solid #edf2ed;
+        border-radius: 8px;
+        background: #f8faf8;
+        padding: 12px;
+      }
+
+      .pollutant-name {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .pollutant-value {
+        margin-top: 8px;
+        color: var(--ink);
+        font-size: 18px;
+        font-weight: 850;
+      }
+
       .table-wrap {
         overflow-x: auto;
       }
@@ -453,6 +481,10 @@
           grid-template-columns: 1fr;
         }
 
+        .pollutant-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         .content,
         .topbar {
           padding-left: 16px;
@@ -470,6 +502,10 @@
 
         h1 {
           font-size: 24px;
+        }
+
+        .pollutant-grid {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -697,22 +733,39 @@
       function renderAirCard() {
         const air = currentAir();
         const values = [
-          ["PM2.5", air.pm2_5, "μg/m³"],
-          ["PM10", air.pm10, "μg/m³"],
-          ["Ozone", air.ozone, "μg/m³"],
-          ["NO2", air.nitrogen_dioxide, "μg/m³"],
-          ["SO2", air.sulphur_dioxide, "μg/m³"],
-          ["CO", air.carbon_monoxide, "μg/m³"],
+          ["PM2.5", air.pm2_5, "μg/m³", 35.5],
+          ["PM10", air.pm10, "μg/m³", 150],
+          ["Ozone", air.ozone, "μg/m³", 180],
+          ["NO2", air.nitrogen_dioxide, "μg/m³", 200],
+          ["SO2", air.sulphur_dioxide, "μg/m³", 350],
+          ["CO", air.carbon_monoxide, "μg/m³", 10000],
         ];
-        const max = Math.max(...values.map((row) => Number(row[1]) || 0), 1);
+        const availableValues = values.filter((row) => Number.isFinite(Number(row[1])));
+        if (!availableValues.length) {
+          return `
+            <section class="card">
+              <h2>Air pollutant snapshot</h2>
+              <p class="insight">No pollutant values are available for this location right now. Try another location or refresh later.</p>
+            </section>
+          `;
+        }
         return `
           <section class="card">
             <h2>Air pollutant snapshot</h2>
+            <p class="metric-detail">Bars compare each pollutant with a practical reference level, so small PM values remain visible even when CO is numerically larger.</p>
             <div class="chart">
-              ${values.map(([label, value, unit]) => `
+              ${availableValues.map(([label, value, unit, reference]) => `
                 <div class="bar-wrap">
-                  <div class="bar" title="${label}: ${fmt(value, " " + unit)}" style="height:${Math.max(((Number(value) || 0) / max) * 100, 5)}%"></div>
+                  <div class="bar" title="${label}: ${fmt(value, " " + unit)}" style="height:${Math.min(Math.max((Number(value) / reference) * 100, 8), 100)}%"></div>
                   <div class="bar-label">${label}</div>
+                </div>
+              `).join("")}
+            </div>
+            <div class="pollutant-grid">
+              ${values.map(([label, value, unit]) => `
+                <div class="pollutant-tile">
+                  <div class="pollutant-name">${label}</div>
+                  <div class="pollutant-value">${fmt(value, " " + unit)}</div>
                 </div>
               `).join("")}
             </div>
