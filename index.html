@@ -1,0 +1,1015 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EcoStat AI Real Data</title>
+    <style>
+      :root {
+        --bg: #f4f7f2;
+        --panel: #ffffff;
+        --ink: #16231d;
+        --muted: #64736a;
+        --line: #dfe8df;
+        --green: #1f6b43;
+        --green-2: #258451;
+        --green-soft: #e0f3e9;
+        --blue: #287a96;
+        --blue-soft: #d9eef5;
+        --amber: #b7791f;
+        --red: #b42318;
+        --shadow: 0 18px 46px rgba(24, 45, 35, 0.09);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 320px;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 270px minmax(0, 1fr);
+      }
+
+      .sidebar {
+        height: 100vh;
+        position: sticky;
+        top: 0;
+        background: var(--panel);
+        border-right: 1px solid var(--line);
+        display: flex;
+        flex-direction: column;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .brand-mark {
+        width: 42px;
+        height: 42px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        background: var(--green);
+        color: white;
+        font-weight: 850;
+      }
+
+      .brand-title {
+        font-weight: 800;
+      }
+
+      .brand-subtitle {
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .nav {
+        display: grid;
+        gap: 6px;
+        padding: 14px;
+      }
+
+      .nav button,
+      .mobile-nav button {
+        min-height: 42px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: #536259;
+        padding: 0 12px;
+        text-align: left;
+        font-weight: 700;
+      }
+
+      .nav button.active,
+      .mobile-nav button.active {
+        background: var(--green-soft);
+        color: #143b2a;
+      }
+
+      .source-box {
+        margin: auto 14px 14px;
+        padding: 14px;
+        border-radius: 8px;
+        background: #f5f8f5;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .topbar {
+        min-height: 68px;
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        background: rgba(255, 255, 255, 0.92);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: blur(10px);
+        padding: 0 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .topbar p {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .content {
+        padding: 28px;
+      }
+
+      .mobile-nav {
+        display: none;
+        gap: 8px;
+        overflow-x: auto;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+        padding: 10px 14px;
+      }
+
+      .mobile-nav button {
+        white-space: nowrap;
+        background: #f0f4f0;
+      }
+
+      .search-panel {
+        background: var(--panel);
+        border: 1px solid rgba(31, 107, 67, 0.14);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        padding: 18px;
+        margin-bottom: 22px;
+      }
+
+      .search-row {
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) 150px 120px;
+        gap: 10px;
+      }
+
+      .field {
+        display: grid;
+        gap: 6px;
+      }
+
+      label {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 750;
+      }
+
+      input,
+      select {
+        width: 100%;
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: var(--ink);
+        padding: 0 12px;
+      }
+
+      input:focus,
+      select:focus {
+        outline: 2px solid rgba(31, 107, 67, 0.18);
+        border-color: var(--green);
+      }
+
+      .btn {
+        min-height: 42px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: white;
+        color: #263a30;
+        padding: 0 14px;
+        font-weight: 780;
+      }
+
+      .btn.primary {
+        border-color: var(--green);
+        background: var(--green);
+        color: white;
+      }
+
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .quick-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      .quick-row .btn {
+        min-height: 34px;
+        font-size: 13px;
+      }
+
+      .eyebrow {
+        color: var(--blue);
+        font-size: 13px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 8px 0 0;
+        font-size: 30px;
+        line-height: 1.12;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 17px;
+      }
+
+      .lead {
+        max-width: 860px;
+        margin: 10px 0 22px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .metrics {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .two {
+        grid-template-columns: minmax(0, 1.15fr) minmax(330px, 0.85fr);
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid rgba(31, 107, 67, 0.13);
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        padding: 18px;
+      }
+
+      .metric-label {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 760;
+      }
+
+      .metric-value {
+        margin-top: 10px;
+        font-size: 30px;
+        font-weight: 850;
+      }
+
+      .metric-detail {
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .status {
+        display: inline-flex;
+        min-height: 30px;
+        align-items: center;
+        border-radius: 999px;
+        padding: 0 11px;
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .status.good {
+        background: var(--green-soft);
+        color: #155b37;
+      }
+
+      .status.fair {
+        background: #fff3cd;
+        color: #7a4b00;
+      }
+
+      .status.poor {
+        background: #fee4e2;
+        color: var(--red);
+      }
+
+      .chart {
+        height: 254px;
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        padding-top: 20px;
+      }
+
+      .bar-wrap {
+        flex: 1;
+        min-width: 18px;
+        display: grid;
+        align-items: end;
+        gap: 8px;
+        text-align: center;
+      }
+
+      .bar {
+        border-radius: 7px 7px 0 0;
+        background: linear-gradient(180deg, var(--green-2), var(--green));
+      }
+
+      .bar-label {
+        color: #87958d;
+        font-size: 11px;
+      }
+
+      .table-wrap {
+        overflow-x: auto;
+      }
+
+      table {
+        width: 100%;
+        min-width: 740px;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th {
+        background: #f5f8f5;
+        color: var(--muted);
+        text-align: left;
+        padding: 12px;
+        font-size: 13px;
+      }
+
+      td {
+        border-top: 1px solid #edf2ed;
+        padding: 12px;
+        color: #2d3d34;
+      }
+
+      .message {
+        min-height: 24px;
+        margin-top: 12px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .message.error {
+        color: var(--red);
+        font-weight: 750;
+      }
+
+      .meta-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .meta-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        border-bottom: 1px solid #edf2ed;
+        padding-bottom: 10px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .meta-row strong {
+        color: var(--ink);
+        text-align: right;
+      }
+
+      .insight {
+        color: var(--muted);
+        line-height: 1.65;
+        font-size: 14px;
+      }
+
+      .source-link {
+        color: var(--blue);
+        font-weight: 760;
+        text-decoration: none;
+      }
+
+      .source-link:hover {
+        text-decoration: underline;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 1060px) {
+        .app {
+          display: block;
+        }
+
+        .sidebar {
+          display: none;
+        }
+
+        .mobile-nav {
+          display: flex;
+        }
+
+        .metrics,
+        .two,
+        .search-row {
+          grid-template-columns: 1fr;
+        }
+
+        .content,
+        .topbar {
+          padding-left: 16px;
+          padding-right: 16px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+          padding-top: 14px;
+          padding-bottom: 14px;
+        }
+
+        h1 {
+          font-size: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">ES</div>
+          <div>
+            <div class="brand-title">EcoStat AI</div>
+            <div class="brand-subtitle">Real environmental data</div>
+          </div>
+        </div>
+        <nav class="nav" id="sideNav"></nav>
+        <div class="source-box">
+          Uses live Open-Meteo weather, air quality, and geocoding APIs. No API key required for this MVP.
+        </div>
+      </aside>
+
+      <div>
+        <header class="topbar">
+          <div>
+            <strong>EcoStat AI Real Data</strong>
+            <p>Check current weather and air quality from public data sources.</p>
+          </div>
+          <button class="btn primary" id="refreshBtn">Refresh data</button>
+        </header>
+        <nav class="mobile-nav" id="mobileNav"></nav>
+        <main class="content">
+          <section class="search-panel">
+            <div class="search-row">
+              <div class="field">
+                <label for="placeInput">Location</label>
+                <input id="placeInput" value="Bangkok" placeholder="City, province, or country" />
+              </div>
+              <div class="field">
+                <label for="languageSelect">Language</label>
+                <select id="languageSelect">
+                  <option value="en">English</option>
+                  <option value="th">Thai</option>
+                  <option value="ja">Japanese</option>
+                  <option value="de">German</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>&nbsp;</label>
+                <button class="btn primary" id="searchBtn">Check</button>
+              </div>
+            </div>
+            <div class="quick-row">
+              <button class="btn" data-place="Bangkok">Bangkok</button>
+              <button class="btn" data-place="Chiang Mai">Chiang Mai</button>
+              <button class="btn" data-place="Rayong">Rayong</button>
+              <button class="btn" data-place="Singapore">Singapore</button>
+              <button class="btn" data-place="Tokyo">Tokyo</button>
+              <button class="btn" data-place="Berlin">Berlin</button>
+            </div>
+            <div id="message" class="message">Ready to fetch real environmental data.</div>
+          </section>
+
+          <section id="view"></section>
+        </main>
+      </div>
+    </div>
+
+    <script>
+      const state = {
+        page: "dashboard",
+        location: null,
+        weather: null,
+        air: null,
+        lastUpdated: null,
+        records: [],
+      };
+
+      const navItems = [
+        ["dashboard", "Dashboard"],
+        ["air", "Air Quality"],
+        ["weather", "Weather"],
+        ["data", "Data Log"],
+        ["sources", "Sources"],
+      ];
+
+      const weatherCodes = {
+        0: "Clear sky",
+        1: "Mainly clear",
+        2: "Partly cloudy",
+        3: "Overcast",
+        45: "Fog",
+        48: "Depositing rime fog",
+        51: "Light drizzle",
+        53: "Drizzle",
+        55: "Dense drizzle",
+        61: "Slight rain",
+        63: "Rain",
+        65: "Heavy rain",
+        80: "Rain showers",
+        95: "Thunderstorm",
+      };
+
+      const view = document.querySelector("#view");
+      const message = document.querySelector("#message");
+      const placeInput = document.querySelector("#placeInput");
+      const languageSelect = document.querySelector("#languageSelect");
+      const searchBtn = document.querySelector("#searchBtn");
+      const refreshBtn = document.querySelector("#refreshBtn");
+
+      const savedRecords = localStorage.getItem("ecostat-real-records");
+      if (savedRecords) {
+        try {
+          state.records = JSON.parse(savedRecords);
+        } catch {
+          state.records = [];
+        }
+      }
+
+      function setMessage(text, isError = false) {
+        message.textContent = text;
+        message.classList.toggle("error", isError);
+      }
+
+      function fmt(value, suffix = "") {
+        if (value === null || value === undefined || Number.isNaN(value)) return "No data";
+        return `${value}${suffix}`;
+      }
+
+      function aqiLabel(value) {
+        if (value === null || value === undefined) return ["No data", "fair"];
+        if (value <= 50) return ["Good", "good"];
+        if (value <= 100) return ["Moderate", "fair"];
+        return ["Unhealthy", "poor"];
+      }
+
+      function pm25Label(value) {
+        if (value === null || value === undefined) return ["No data", "fair"];
+        if (value <= 12) return ["Low", "good"];
+        if (value <= 35.5) return ["Moderate", "fair"];
+        return ["High", "poor"];
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;");
+      }
+
+      function header(eyebrow, title, description) {
+        return `
+          <div>
+            <div class="eyebrow">${eyebrow}</div>
+            <h1>${title}</h1>
+            <p class="lead">${description}</p>
+          </div>
+        `;
+      }
+
+      function metric(label, value, detail) {
+        return `
+          <article class="card">
+            <div class="metric-label">${label}</div>
+            <div class="metric-value">${value}</div>
+            <div class="metric-detail">${detail}</div>
+          </article>
+        `;
+      }
+
+      function locationName() {
+        if (!state.location) return "No location selected";
+        const parts = [state.location.name, state.location.admin1, state.location.country].filter(Boolean);
+        return parts.join(", ");
+      }
+
+      function currentWeather() {
+        return state.weather?.current || {};
+      }
+
+      function currentAir() {
+        return state.air?.current || {};
+      }
+
+      function renderNav() {
+        for (const target of [document.querySelector("#sideNav"), document.querySelector("#mobileNav")]) {
+          target.innerHTML = navItems
+            .map(([id, label]) => `<button class="${state.page === id ? "active" : ""}" data-page="${id}">${label}</button>`)
+            .join("");
+        }
+        document.querySelectorAll("[data-page]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.page = button.dataset.page;
+            render();
+          });
+        });
+      }
+
+      function renderEmpty() {
+        view.innerHTML =
+          header("Real Data", "Check environmental conditions by location", "Search for a city to fetch current weather and air quality from Open-Meteo public APIs.") +
+          `<section class="card"><p class="insight">Enter a location above and press Check. The app will resolve the place name, read coordinates, then request live weather and air quality data.</p></section>`;
+      }
+
+      function renderDashboard() {
+        if (!state.location || !state.weather || !state.air) return renderEmpty();
+        const weather = currentWeather();
+        const air = currentAir();
+        const [aqiText, aqiClass] = aqiLabel(air.us_aqi);
+        const [pmText, pmClass] = pm25Label(air.pm2_5);
+        const codeText = weatherCodes[weather.weather_code] || "Weather code " + fmt(weather.weather_code);
+        view.innerHTML =
+          header("Dashboard", locationName(), "Current weather and air quality indicators from real public data sources.") +
+          `<section class="grid metrics">
+            ${metric("US AQI", fmt(air.us_aqi), `<span class="status ${aqiClass}">${aqiText}</span>`)}
+            ${metric("PM2.5", fmt(air.pm2_5, " μg/m³"), `<span class="status ${pmClass}">${pmText}</span>`)}
+            ${metric("Temperature", fmt(weather.temperature_2m, " °C"), codeText)}
+            ${metric("Humidity", fmt(weather.relative_humidity_2m, "%"), `Wind ${fmt(weather.wind_speed_10m, " km/h")}`)}
+          </section>
+          <section class="grid two" style="margin-top:16px">
+            ${renderAirCard()}
+            ${renderInsightCard()}
+          </section>`;
+      }
+
+      function renderAirCard() {
+        const air = currentAir();
+        const values = [
+          ["PM2.5", air.pm2_5, "μg/m³"],
+          ["PM10", air.pm10, "μg/m³"],
+          ["Ozone", air.ozone, "μg/m³"],
+          ["NO2", air.nitrogen_dioxide, "μg/m³"],
+          ["SO2", air.sulphur_dioxide, "μg/m³"],
+          ["CO", air.carbon_monoxide, "μg/m³"],
+        ];
+        const max = Math.max(...values.map((row) => Number(row[1]) || 0), 1);
+        return `
+          <section class="card">
+            <h2>Air pollutant snapshot</h2>
+            <div class="chart">
+              ${values.map(([label, value, unit]) => `
+                <div class="bar-wrap">
+                  <div class="bar" title="${label}: ${fmt(value, " " + unit)}" style="height:${Math.max(((Number(value) || 0) / max) * 100, 5)}%"></div>
+                  <div class="bar-label">${label}</div>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        `;
+      }
+
+      function renderInsightCard() {
+        const weather = currentWeather();
+        const air = currentAir();
+        const [aqiText, aqiClass] = aqiLabel(air.us_aqi);
+        const [pmText, pmClass] = pm25Label(air.pm2_5);
+        return `
+          <section class="card">
+            <h2>Plain-language check</h2>
+            <p class="insight">
+              Current air quality is <span class="status ${aqiClass}">${aqiText}</span>
+              by US AQI. PM2.5 is <span class="status ${pmClass}">${pmText}</span>.
+              The weather is ${escapeHtml(weatherCodes[weather.weather_code] || "reported by model code " + fmt(weather.weather_code))}
+              with temperature ${fmt(weather.temperature_2m, " °C")} and wind ${fmt(weather.wind_speed_10m, " km/h")}.
+            </p>
+            <div class="meta-list">
+              <div class="meta-row"><span>Coordinates</span><strong>${state.location.latitude}, ${state.location.longitude}</strong></div>
+              <div class="meta-row"><span>Timezone</span><strong>${escapeHtml(state.location.timezone || "auto")}</strong></div>
+              <div class="meta-row"><span>Updated</span><strong>${escapeHtml(state.lastUpdated || "No data")}</strong></div>
+            </div>
+          </section>
+        `;
+      }
+
+      function renderAirPage() {
+        if (!state.air) return renderEmpty();
+        const air = currentAir();
+        view.innerHTML =
+          header("Air Quality", locationName(), "Current air quality model data including AQI, particulate matter, and common gases.") +
+          `<section class="grid two">
+            ${renderAirCard()}
+            <section class="card table-wrap">
+              <h2>Current air values</h2>
+              <table style="margin-top:14px">
+                <thead><tr><th>Variable</th><th>Value</th><th>Unit</th></tr></thead>
+                <tbody>
+                  <tr><td>US AQI</td><td>${fmt(air.us_aqi)}</td><td>index</td></tr>
+                  <tr><td>European AQI</td><td>${fmt(air.european_aqi)}</td><td>index</td></tr>
+                  <tr><td>PM2.5</td><td>${fmt(air.pm2_5)}</td><td>μg/m³</td></tr>
+                  <tr><td>PM10</td><td>${fmt(air.pm10)}</td><td>μg/m³</td></tr>
+                  <tr><td>Ozone</td><td>${fmt(air.ozone)}</td><td>μg/m³</td></tr>
+                  <tr><td>Nitrogen dioxide</td><td>${fmt(air.nitrogen_dioxide)}</td><td>μg/m³</td></tr>
+                  <tr><td>Sulphur dioxide</td><td>${fmt(air.sulphur_dioxide)}</td><td>μg/m³</td></tr>
+                  <tr><td>Carbon monoxide</td><td>${fmt(air.carbon_monoxide)}</td><td>μg/m³</td></tr>
+                </tbody>
+              </table>
+            </section>
+          </section>`;
+      }
+
+      function renderWeatherPage() {
+        if (!state.weather) return renderEmpty();
+        const weather = currentWeather();
+        view.innerHTML =
+          header("Weather", locationName(), "Current model weather conditions for the selected location.") +
+          `<section class="grid metrics">
+            ${metric("Temperature", fmt(weather.temperature_2m, " °C"), "2 m above ground")}
+            ${metric("Apparent temp", fmt(weather.apparent_temperature, " °C"), "Feels-like temperature")}
+            ${metric("Rain", fmt(weather.rain, " mm"), `Precipitation ${fmt(weather.precipitation, " mm")}`)}
+            ${metric("Wind", fmt(weather.wind_speed_10m, " km/h"), `Direction ${fmt(weather.wind_direction_10m, "°")}`)}
+          </section>
+          <section class="card" style="margin-top:16px">
+            <h2>Weather details</h2>
+            <p class="insight">
+              Condition: ${escapeHtml(weatherCodes[weather.weather_code] || "Weather code " + fmt(weather.weather_code))}.
+              Cloud cover is ${fmt(weather.cloud_cover, "%")} and pressure is ${fmt(weather.surface_pressure, " hPa")}.
+            </p>
+          </section>`;
+      }
+
+      function renderDataPage() {
+        view.innerHTML =
+          header("Data Log", "Real checks saved as editable records", "Each successful location check is saved here. Add notes, remove rows, and export the cleaned log as CSV.") +
+          `<div class="quick-row" style="margin-bottom:14px">
+            <button class="btn primary" id="exportLogBtn">Export CSV</button>
+            <button class="btn" id="clearLogBtn">Clear log</button>
+          </div>
+          <section class="card table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Location</th>
+                  <th>US AQI</th>
+                  <th>PM2.5</th>
+                  <th>Temp</th>
+                  <th>Humidity</th>
+                  <th>Note</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${state.records.length ? state.records.map((record, index) => `
+                  <tr>
+                    <td>${escapeHtml(record.time)}</td>
+                    <td>${escapeHtml(record.location)}</td>
+                    <td>${fmt(record.usAqi)}</td>
+                    <td>${fmt(record.pm25, " μg/m³")}</td>
+                    <td>${fmt(record.temperature, " °C")}</td>
+                    <td>${fmt(record.humidity, "%")}</td>
+                    <td><input data-note="${index}" value="${escapeHtml(record.note || "")}" placeholder="Add note" /></td>
+                    <td><button class="btn" data-delete-record="${index}">Remove</button></td>
+                  </tr>
+                `).join("") : `<tr><td colspan="8">No records yet. Search a location to add the first real data row.</td></tr>`}
+              </tbody>
+            </table>
+          </section>`;
+
+        document.querySelector("#exportLogBtn").addEventListener("click", exportLogCsv);
+        document.querySelector("#clearLogBtn").addEventListener("click", () => {
+          state.records = [];
+          saveRecords();
+          render();
+        });
+        document.querySelectorAll("[data-note]").forEach((input) => {
+          input.addEventListener("input", () => {
+            state.records[Number(input.dataset.note)].note = input.value;
+            saveRecords();
+          });
+        });
+        document.querySelectorAll("[data-delete-record]").forEach((button) => {
+          button.addEventListener("click", () => {
+            state.records.splice(Number(button.dataset.deleteRecord), 1);
+            saveRecords();
+            render();
+          });
+        });
+      }
+
+      function renderSourcesPage() {
+        view.innerHTML =
+          header("Sources", "Live data sources", "This MVP fetches public data directly in the browser. Values depend on source availability and model update cycles.") +
+          `<section class="grid two">
+            <article class="card">
+              <h2>Open-Meteo APIs</h2>
+              <p class="insight">Weather, air quality, and geocoding data are requested from Open-Meteo public endpoints.</p>
+              <p><a class="source-link" href="https://open-meteo.com/en/docs" target="_blank" rel="noreferrer">Weather Forecast API</a></p>
+              <p><a class="source-link" href="https://open-meteo.com/en/docs/air-quality-api" target="_blank" rel="noreferrer">Air Quality API</a></p>
+              <p><a class="source-link" href="https://open-meteo.com/en/docs/geocoding-api" target="_blank" rel="noreferrer">Geocoding API</a></p>
+            </article>
+            <article class="card">
+              <h2>Important note</h2>
+              <p class="insight">This app is for environmental screening and education. For official reporting, verify results with agency-grade stations, field measurements, and local regulatory methods.</p>
+            </article>
+          </section>`;
+      }
+
+      function render() {
+        renderNav();
+        if (state.page === "dashboard") renderDashboard();
+        if (state.page === "air") renderAirPage();
+        if (state.page === "weather") renderWeatherPage();
+        if (state.page === "data") renderDataPage();
+        if (state.page === "sources") renderSourcesPage();
+      }
+
+      function saveRecords() {
+        localStorage.setItem("ecostat-real-records", JSON.stringify(state.records));
+      }
+
+      function addCurrentRecord() {
+        const weather = currentWeather();
+        const air = currentAir();
+        const record = {
+          time: state.lastUpdated,
+          location: locationName(),
+          latitude: state.location?.latitude,
+          longitude: state.location?.longitude,
+          usAqi: air.us_aqi,
+          europeanAqi: air.european_aqi,
+          pm25: air.pm2_5,
+          pm10: air.pm10,
+          ozone: air.ozone,
+          nitrogenDioxide: air.nitrogen_dioxide,
+          sulphurDioxide: air.sulphur_dioxide,
+          carbonMonoxide: air.carbon_monoxide,
+          temperature: weather.temperature_2m,
+          humidity: weather.relative_humidity_2m,
+          windSpeed: weather.wind_speed_10m,
+          rain: weather.rain,
+          note: "",
+        };
+
+        const duplicate = state.records.find(
+          (row) => row.location === record.location && row.time === record.time,
+        );
+        if (!duplicate) {
+          state.records.unshift(record);
+          state.records = state.records.slice(0, 100);
+          saveRecords();
+        }
+      }
+
+      function csvEscape(value) {
+        const text = String(value ?? "");
+        return /[",\n\r]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
+      }
+
+      function exportLogCsv() {
+        const columns = [
+          "time",
+          "location",
+          "latitude",
+          "longitude",
+          "usAqi",
+          "europeanAqi",
+          "pm25",
+          "pm10",
+          "ozone",
+          "nitrogenDioxide",
+          "sulphurDioxide",
+          "carbonMonoxide",
+          "temperature",
+          "humidity",
+          "windSpeed",
+          "rain",
+          "note",
+        ];
+        const csv = [
+          columns.join(","),
+          ...state.records.map((record) => columns.map((column) => csvEscape(record[column])).join(",")),
+        ].join("\n");
+        const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "ecostat-real-data-log.csv";
+        link.click();
+        URL.revokeObjectURL(url);
+      }
+
+      async function fetchJson(url) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+        return response.json();
+      }
+
+      async function checkLocation() {
+        const place = placeInput.value.trim();
+        if (place.length < 2) {
+          setMessage("Please enter a city or place name.", true);
+          return;
+        }
+
+        searchBtn.disabled = true;
+        refreshBtn.disabled = true;
+        setMessage("Fetching live environmental data...");
+
+        try {
+          const language = languageSelect.value;
+          const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(place)}&count=1&language=${encodeURIComponent(language)}&format=json`;
+          const geo = await fetchJson(geoUrl);
+          const location = geo.results?.[0];
+          if (!location) throw new Error("Location not found.");
+
+          const lat = location.latitude;
+          const lon = location.longitude;
+          const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,precipitation,rain,weather_code,cloud_cover,surface_pressure,wind_speed_10m,wind_direction_10m&timezone=auto`;
+          const airUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi,european_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone,dust,uv_index&timezone=auto`;
+          const [weather, air] = await Promise.all([fetchJson(weatherUrl), fetchJson(airUrl)]);
+
+          state.location = location;
+          state.weather = weather;
+          state.air = air;
+          state.lastUpdated = new Date().toLocaleString();
+          addCurrentRecord();
+          state.page = "dashboard";
+          setMessage(`Loaded real data for ${locationName()}.`);
+          render();
+        } catch (error) {
+          setMessage(error.message || "Could not fetch real data.", true);
+        } finally {
+          searchBtn.disabled = false;
+          refreshBtn.disabled = false;
+        }
+      }
+
+      searchBtn.addEventListener("click", checkLocation);
+      refreshBtn.addEventListener("click", checkLocation);
+      placeInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") checkLocation();
+      });
+      document.querySelectorAll("[data-place]").forEach((button) => {
+        button.addEventListener("click", () => {
+          placeInput.value = button.dataset.place;
+          checkLocation();
+        });
+      });
+
+      render();
+      checkLocation();
+    </script>
+  </body>
+</html>
